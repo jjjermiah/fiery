@@ -240,10 +240,18 @@ logger_otel <- function(format = '{message}') {
       event = event,
       message = msg
     )
+
+    dots <- list(...)
+    span_ctx <- if ("span_context" %in% names(dots)) {
+      dots$span_context
+    } else {
+      request$otel
+    }
+    
     otel::log(
       as.character(msg),
       severity = level,
-      span_context = request$otel,
+      span_context = span_ctx,
       timestamp = time,
       attributes = list(server.id = session_name)
     )
