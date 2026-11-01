@@ -1291,7 +1291,7 @@ Fire <- R6Class(
           cnd_muffle(w)
         },
         message = function(m) {
-          private$p_log("message", m)
+          private$p_log("message", m, request = request)
           cnd_muffle(m)
         }
       )
@@ -1313,6 +1313,8 @@ Fire <- R6Class(
       force(.logcall)
       force(.topcall)
       force(.topenv)
+
+      span_context <- if (is.null(request)) NULL else request$otel
       log_fun <- function(...) {
         private$logger(
           event,
@@ -1323,6 +1325,7 @@ Fire <- R6Class(
           .topcall = .topcall,
           .topenv = .topenv,
           .session_name = private$SESSION_NAME,
+          span_context = span_context,
           ...
         )
       }
