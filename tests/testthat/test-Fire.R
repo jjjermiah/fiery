@@ -679,6 +679,21 @@ test_that('safe_call catches conditions', {
   expect_snapshot(cnd <- self$safe_call(message('message test')))
 })
 
+test_that('request span context reaches the logger', {
+  app <- Fire$new()
+  contexts <- list()
+  app$set_logger(function(event, message, request, ..., span_context = NULL) {
+    contexts <<- c(contexts, list(span_context))
+  })
+
+  span <- new.env(parent = emptyenv())
+  app$safe_call(message('with request'), request = list(otel = span))
+  app$safe_call(message('without request'))
+
+  expect_identical(contexts[[1]], span)
+  expect_null(contexts[[2]])
+})
+
 test_that("requests are created with the correct settings", {
   httpuv::stopAllServers()
   app <- standard_app()

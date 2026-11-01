@@ -1314,11 +1314,7 @@ Fire <- R6Class(
       force(.topcall)
       force(.topenv)
 
-      if(!is.null(request) && !is.null(request$otel_span)) {
-        span_context <- request$otel_span$get_context()
-      }else {
-        span_context <- NULL
-      }
+      span_context <- if (is.null(request)) NULL else request$otel
       log_fun <- function(...) {
         private$logger(
           event,
